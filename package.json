@@ -1,0 +1,34 @@
+{
+  "name": "claims-service",
+  "version": "1.0.0",
+  "description": "Serverless Claims Service with FNOL and Notifications",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild src/functions/create-claim/index.ts --bundle --platform=node --target=node22 --outfile=dist/functions/create-claim/index.js && esbuild src/functions/process-claim/index.ts --bundle --platform=node --target=node22 --outfile=dist/functions/process-claim/index.js && esbuild src/functions/send-notification/index.ts --bundle --platform=node --target=node22 --outfile=dist/functions/send-notification/index.js"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "serverless",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.114",
+    "@types/node": "^18.15.11",
+    "@types/uuid": "^10.0.0",
+    "esbuild": "^0.27.2",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.975.0",
+    "@aws-sdk/client-eventbridge": "^3.975.0",
+    "@aws-sdk/client-ses": "^3.975.0",
+    "@aws-sdk/client-sns": "^3.975.0",
+    "@aws-sdk/lib-dynamodb": "^3.975.0",
+    "aws-lambda": "^1.0.7",
+    "uuid": "^13.0.0"
+  }
+}
