@@ -52,7 +52,7 @@ I have set up a **Fan-Out Architecture** using SNS and SQS to decouple your serv
 architecture-beta
     group api(logos:aws-api-gateway)[API Layer]
     group processing(logos:aws-lambda)[Compute]
-    group messaging(logos:aws-sns)[Messaging & Fan-out]
+    group messaging(logos:aws-sns)[Messaging and Fanout]
     group storage(logos:aws-dynamodb)[Storage]
 
     service apiGateway(logos:aws-api-gateway)[API Gateway] in api
