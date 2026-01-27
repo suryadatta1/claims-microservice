@@ -8,20 +8,21 @@ module "messaging" {
   source      = "./modules/messaging"
   queue_name  = "claims-queue-${var.environment}"
   topic_name  = "claims-topic-${var.environment}"
+  environment = var.environment
 }
 
 module "compute" {
   source      = "./modules/functions"
   environment = var.environment
-  
-  table_name  = module.database.table_name
-  table_arn   = module.database.table_arn
-  
-  queue_url   = module.messaging.queue_url
-  queue_arn   = module.messaging.queue_arn
-  
-  topic_name  = module.messaging.topic_name
-  topic_arn   = module.messaging.topic_arn
+
+  table_name = module.database.table_name
+  table_arn  = module.database.table_arn
+
+  queue_url = module.messaging.queue_url
+  queue_arn = module.messaging.queue_arn
+
+  topic_name = module.messaging.topic_name
+  topic_arn  = module.messaging.topic_arn
 }
 
 module "api" {

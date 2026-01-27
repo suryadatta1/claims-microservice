@@ -22,22 +22,39 @@ resource "aws_sns_topic_subscription" "user_updates_sqs_target" {
 
 resource "aws_sqs_queue_policy" "allow_sns" {
   queue_url = aws_sqs_queue.claims_queue.id
-  policy    = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Effect    = "Allow"
+        Effect = "Allow"
         Principal = {
           Service = "sns.amazonaws.com"
         }
-        Action    = "sqs:SendMessage"
-        Resource  = aws_sqs_queue.claims_queue.arn
+        Action   = "sqs:SendMessage"
+        Resource = aws_sqs_queue.claims_queue.arn
         Condition = {
           ArnEquals = {
-            "aws:SourceArn": aws_sns_topic.claims_topic.arn
+            "aws:SourceArn" : aws_sns_topic.claims_topic.arn
           }
         }
       }
     ]
   })
+}
+
+# CloudWatch Alarm for DLQ
+resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
+  alarm_name          = "claims-dlq-${var.environment}-messages"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = "60"
+  statistic           = "Sum"
+  threshold           = "0"
+  alarm_description   = "Alert when messages appear in DLQ"
+
+  dimensions = {
+    QueueName = aws_sqs_queue.claims_dlq.name
+  }
 }

@@ -24,9 +24,8 @@ override.tf.json
 terraform.rc
 
 # Lambda artifacts
-infra/modules/functions/lambda.zip
-infra/modules/api/lambda.zip
-infra/modules/*/lambda.zip
+infra/modules/functions/*.zip
+infra/modules/api/*.zip
 
 # Environment variables
 .env

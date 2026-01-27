@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild src/functions/create-claim/index.ts --bundle --platform=node --target=node22 --outfile=dist/functions/create-claim/index.js && esbuild src/functions/process-claim/index.ts --bundle --platform=node --target=node22 --outfile=dist/functions/process-claim/index.js && esbuild src/functions/send-notification/index.ts --bundle --platform=node --target=node22 --outfile=dist/functions/send-notification/index.js"
+    "build": "esbuild src/functions/create-claim/index.ts --bundle --platform=node --target=node24 --outfile=dist/create-claim/index.js --minify && esbuild src/functions/process-claim/index.ts --bundle --platform=node --target=node24 --outfile=dist/process-claim/index.js --minify && esbuild src/functions/send-notification/index.ts --bundle --platform=node --target=node24 --outfile=dist/send-notification/index.js --minify"
   },
   "keywords": [
     "aws",
