@@ -240,6 +240,8 @@ resource "aws_lambda_function" "send_notification" {
     variables = {
       CLAIMS_TABLE_NAME = var.table_name
       TOPIC_ARN         = var.topic_arn
+      FROM_EMAIL        = var.from_email
+      TO_EMAIL          = var.to_email
     }
   }
 

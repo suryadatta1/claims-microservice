@@ -11,6 +11,13 @@ module "messaging" {
   environment = var.environment
 }
 
+module "ses" {
+  source      = "./modules/ses"
+  environment = var.environment
+  from_email  = var.from_email
+  to_email    = var.to_email
+}
+
 module "compute" {
   source      = "./modules/functions"
   environment = var.environment
@@ -23,6 +30,9 @@ module "compute" {
 
   topic_name = module.messaging.topic_name
   topic_arn  = module.messaging.topic_arn
+
+  from_email = var.from_email
+  to_email   = var.to_email
 }
 
 module "api" {

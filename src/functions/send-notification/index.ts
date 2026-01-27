@@ -4,8 +4,16 @@ import { ClaimEvent } from '../../shared/types';
 
 const sesClient = new SESClient({});
 
+const FROM_EMAIL = process.env.FROM_EMAIL;
+const TO_EMAIL = process.env.TO_EMAIL;
+
 export const handler: SNSHandler = async (event) => {
   console.log('Received SNS event:', JSON.stringify(event, null, 2));
+
+  // Validate required environment variables
+  if (!FROM_EMAIL || !TO_EMAIL) {
+    throw new Error('FROM_EMAIL and TO_EMAIL environment variables must be set');
+  }
 
   for (const record of event.Records) {
       try {
@@ -23,8 +31,8 @@ export const handler: SNSHandler = async (event) => {
             continue;
           }
 
-          // Simulate Email Construction
-          const recipient = 'user@example.com';
+          // Email Construction
+          const recipient = TO_EMAIL;
           let subject = '';
           let body = '';
 
@@ -40,12 +48,12 @@ export const handler: SNSHandler = async (event) => {
           }
 
           // Sending Email via AWS SES
-          console.log(`Sending Email via SES to ${recipient}`);
+          console.log(`Sending Email from ${FROM_EMAIL} to ${recipient}`);
           
           await sesClient.send(new SendEmailCommand({
-            Source: 'no-reply@claims-service.com', // Needs to be a verified identity in SES Sandbox
+            Source: FROM_EMAIL,
             Destination: {
-                ToAddresses: [recipient]
+                ToAddresses: [recipient as string]
             },
             Message: {
                 Subject: { Data: subject },

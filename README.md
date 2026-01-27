@@ -160,10 +160,39 @@ Since we haven't provisioned an API Gateway yet, you can test this by manually i
 4.  **`send-notification` Lambda**:
     - This Lambda is subscribed to the SNS Topic (filtered for Accepted/Rejected).
     - It triggers, reads the message.
-    - **Sends an Email** via AWS SES to `user@example.com`.
+    - **Sends an Email** via AWS SES from `suryadattatangirala@outlook.com` to `tangiralasuryadatta@gmail.com`.
 
 ### 3. Verification
 
 - Check **DynamoDB**: You should see the item with status `ACCEPTED`.
 - Check **CloudWatch Logs**: see the logs for each Lambda.
-- Check **Email**: If you verified your email in SES Sandbox, you will receive an email.
+- Check **Email**: You will receive an email at `tangiralasuryadatta@gmail.com` (both emails must be verified in SES).
+
+## Deployed API Endpoint
+
+```
+https://0d1wfml3oh.execute-api.ap-south-1.amazonaws.com
+```
+
+### Test the API
+
+```bash
+# Create a claim (will be ACCEPTED if amount < $1000)
+curl -X POST https://0d1wfml3oh.execute-api.ap-south-1.amazonaws.com/claims \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 500, "description": "Office supplies"}'
+
+# Create a claim (will be REJECTED if amount >= $1000)
+curl -X POST https://0d1wfml3oh.execute-api.ap-south-1.amazonaws.com/claims \
+  -H "Content-Type: application/json" \
+  -d '{"amount": 1500, "description": "Laptop purchase"}'
+```
+
+## Email Setup (AWS SES)
+
+The system uses AWS SES for email notifications. Both email addresses must be verified:
+
+1. **From Address**: `suryadattatangirala@outlook.com` - Must be verified in AWS SES
+2. **To Address**: `tangiralasuryadatta@gmail.com` - Must be verified in AWS SES
+
+**Note**: In SES Sandbox mode, you can only send to verified addresses. See `infra/modules/ses/README.md` for details on moving to production.
