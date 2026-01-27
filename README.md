@@ -49,36 +49,50 @@ These are the specific resources we provisioned in the `infra` folder:
 I have set up a **Fan-Out Architecture** using SNS and SQS to decouple your services and ensure reliable processing.
 
 ```mermaid
-architecture-beta
-    group api(logos:aws-api-gateway)[API Layer]
-    group processing(logos:aws-lambda)[Compute]
-    group messaging(logos:aws-sns)[Messaging and Fanout]
-    group storage(logos:aws-dynamodb)[Storage]
+flowchart TB
+    subgraph API["API Layer"]
+        APIGW[API Gateway<br/>POST /claims]
+    end
 
-    service apiGateway(logos:aws-api-gateway)[API Gateway] in api
-    service createClaim(logos:aws-lambda)[Create Claim Lambda] in processing
-    service processClaim(logos:aws-lambda)[Process Claim Lambda] in processing
-    service sendNotify(logos:aws-lambda)[Send Notification Lambda] in processing
+    subgraph Compute["Lambda Functions"]
+        CREATE[Create Claim<br/>λ]
+        PROCESS[Process Claim<br/>λ]
+        NOTIFY[Send Notification<br/>λ]
+    end
 
-    service sns(logos:aws-sns)[SNS Topic] in messaging
-    service sqs(logos:aws-sqs)[SQS Queue] in messaging
-    service dlq(logos:aws-sqs)[DLQ] in messaging
+    subgraph Messaging["Messaging & Event Bus"]
+        SNS[SNS Topic<br/>claims-topic]
+        SQS[SQS Queue<br/>claims-queue]
+        DLQ[Dead Letter Queue<br/>DLQ]
+    end
 
-    service dynamo(logos:aws-dynamodb)[DynamoDB] in storage
-    service ses(logos:aws-ses)[Email Service]
+    subgraph Storage["Data Persistence"]
+        DDB[(DynamoDB<br/>ClaimsTable)]
+    end
 
-    apiGateway:R -- L:createClaim
-    createClaim:R -- L:sns
-    createClaim:B -- T:dynamo
+    subgraph Email["Email Service"]
+        SES[AWS SES<br/>Email Notifications]
+    end
 
-    sns:R -- L:sqs
-    sns:B -- T:sendNotify
+    APIGW -->|1. Create Request| CREATE
+    CREATE -->|2. Publish Claim.Requested| SNS
+    SNS -->|3. Fanout| SQS
+    SNS -.->|Filtered: Accepted/Rejected| NOTIFY
+    SQS -->|4. Trigger| PROCESS
+    PROCESS -->|5. Store & Update| DDB
+    PROCESS -->|6. Publish Decision| SNS
+    PROCESS -.->|Failed 3x| DLQ
+    NOTIFY -->|7. Send Email| SES
 
-    sqs:R -- L:processClaim
-    processClaim:T -- B:dynamo
-    processClaim:L -- R:dlq
-
-    sendNotify:R -- L:ses
+    style CREATE fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#fff
+    style PROCESS fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#fff
+    style NOTIFY fill:#FF9900,stroke:#232F3E,stroke-width:2px,color:#fff
+    style SNS fill:#FF4F8B,stroke:#232F3E,stroke-width:2px,color:#fff
+    style SQS fill:#FF4F8B,stroke:#232F3E,stroke-width:2px,color:#fff
+    style DLQ fill:#FF4F8B,stroke:#232F3E,stroke-width:2px,color:#fff
+    style DDB fill:#4053D6,stroke:#232F3E,stroke-width:2px,color:#fff
+    style SES fill:#DD344C,stroke:#232F3E,stroke-width:2px,color:#fff
+    style APIGW fill:#FF4F8B,stroke:#232F3E,stroke-width:2px,color:#fff
 ```
 
 ### 1. The Core Messaging Infrastructure
